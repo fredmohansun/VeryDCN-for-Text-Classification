@@ -2,6 +2,17 @@ import torch
 import torch.nn as nn
 
 
+class KMaxPool(nn.Module):
+    def __init__(self, k=0):
+        super(KMaxPool, self).__init__()
+        self.k = k    
+    def forward(self, x):
+        if(self.k==0):
+            self.k = x.size()[2]/2
+        return x.topk(k, sorted=False)[0]
+
+    
+
 # Conv block
 class BasicBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1):
@@ -26,11 +37,16 @@ class BasicResBlock(nn.Module):
     def __init__(self, in_channels, out_channels, downsample=None, shortcut=True):
         super(BasicResBlock, self).__init__()
 
-        if downsample:
+        if downsample==1:
             self.pool = nn.MaxPool1d(kernel_size=3, stride=2, padding=1)
             first_stride = 1
+        elif downsample == 2:
+            first_stride = 2
+        elif downsample==3:
+            self.pool = KMaxPool()
         else:
             first_stride = 1
+        self.downsample = downsample
 
         self.convblock = BasicBlock(in_channels, out_channels, stride=first_stride)
 
@@ -52,10 +68,9 @@ class BasicResBlock(nn.Module):
 
 # CNN Model
 class VDCNN(nn.Module):
-    def __init__(self, vocabsize, embedsize, K, depth, shortcut, num_classes=5):
+    def __init__(self, vocabsize, embedsize, depth, downsample, shortcut, num_classes=5):
         super(VDCNN, self).__init__()
 
-        self.k = K
         layers = []
         # architecture
         self.embed = nn.Embedding(vocabsize, embedsize, 0)
@@ -73,20 +88,20 @@ class VDCNN(nn.Module):
         for i in range(n_conv_block_64):
             layers.append(BasicResBlock(64, 64, shortcut=shortcut))
 
-        layers.append(BasicResBlock(64, 128, downsample=True, shortcut=shortcut))
+        layers.append(BasicResBlock(64, 128, downsample=downsample, shortcut=shortcut))
         for i in range(n_conv_block_128-1):
             layers.append(BasicResBlock(128, 128, shortcut=shortcut))
 
-        layers.append(BasicResBlock(128, 256, downsample=True, shortcut=shortcut))
+        layers.append(BasicResBlock(128, 256, downsample=downsample, shortcut=shortcut))
         for i in range(n_conv_block_256-1):
             layers.append(BasicResBlock(256, 256, shortcut=shortcut))
 
-        layers.append(BasicResBlock(256, 512, downsample=True, shortcut=shortcut))
+        layers.append(BasicResBlock(256, 512, downsample=downsample, shortcut=shortcut))
         for i in range(n_conv_block_512-1):
-            layers.append(BasicResBlock(512, 512, shortcut=shortcut)
+            layers.append(BasicResBlock(512, 512, shortcut=shortcut))
 
         self.layers = nn.Sequential(*layers)
-        #self.kmax_pooling = KMaxPool(k=k)
+        self.kmax_pooling = KMaxPool(k=8)
         self.fc = nn.Sequential( # fully connected layers
             nn.Linear(512 * self.k, 2048),
             nn.ReLU(),
@@ -98,9 +113,9 @@ class VDCNN(nn.Module):
 
     def forward(self, x):
         out = self.embed(x)
-        out = out.transpose(1,2)
+        out = torch.transpose(out,1,2)
         out = self.layers(out)
-        out = out.topk(self.k)[0]
+        out = self.kmax_pooling(out)
         #print out.shape
         out = out.view(out.size(0), -1)
         out = self.fc(out)

@@ -5,13 +5,11 @@ import torch.nn as nn
 class KMaxPool(nn.Module):
     def __init__(self, k=0):
         super(KMaxPool, self).__init__()
-        self.k = k    
+        self.k = k
     def forward(self, x):
         if(self.k==0):
             self.k = x.size()[2]/2
         return x.topk(k, sorted=False)[0]
-
-    
 
 # Conv block
 class BasicBlock(nn.Module):
@@ -68,14 +66,13 @@ class BasicResBlock(nn.Module):
 
 # CNN Model
 class VDCNN(nn.Module):
-    def __init__(self, vocabsize, embedsize, depth, downsample, shortcut, num_classes=5):
+    def __init__(self, vocabsize, embedsize, depth, downsample, shortcut, K, num_classes=5):
         super(VDCNN, self).__init__()
 
         layers = []
         # architecture
         self.embed = nn.Embedding(vocabsize, embedsize, 0)
         layers.append(nn.Conv1d(embedsize, 64, kernel_size=3, padding=1))
-
         if depth == 9:
             nblock64, nblock128, nblock256, nblock512 = 2, 2, 2, 2
         elif depth == 17:
@@ -101,9 +98,9 @@ class VDCNN(nn.Module):
             layers.append(BasicResBlock(512, 512, shortcut=shortcut))
 
         self.layers = nn.Sequential(*layers)
-        self.kmax_pooling = KMaxPool(k=8)
+        self.kmax_pooling = KMaxPool(k=K)
         self.fc = nn.Sequential( # fully connected layers
-            nn.Linear(512 * self.k, 2048),
+            nn.Linear(512 * K, 2048),
             nn.ReLU(),
             nn.Linear(2048, 2048),
             nn.ReLU(),

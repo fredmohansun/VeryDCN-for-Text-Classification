@@ -82,19 +82,19 @@ class VDCNN(nn.Module):
         elif depth == 49:
             nblock64, nblock128, nblock256, nblock512 = 16, 16, 10, 6
 
-        for i in range(n_conv_block_64):
+        for i in range(nblock64):
             layers.append(BasicResBlock(64, 64, shortcut=shortcut))
 
         layers.append(BasicResBlock(64, 128, downsample=downsample, shortcut=shortcut))
-        for i in range(n_conv_block_128-1):
+        for i in range(nblock128-1):
             layers.append(BasicResBlock(128, 128, shortcut=shortcut))
 
         layers.append(BasicResBlock(128, 256, downsample=downsample, shortcut=shortcut))
-        for i in range(n_conv_block_256-1):
+        for i in range(nblock256-1):
             layers.append(BasicResBlock(256, 256, shortcut=shortcut))
 
         layers.append(BasicResBlock(256, 512, downsample=downsample, shortcut=shortcut))
-        for i in range(n_conv_block_512-1):
+        for i in range(nblock512-1):
             layers.append(BasicResBlock(512, 512, shortcut=shortcut))
 
         self.layers = nn.Sequential(*layers)

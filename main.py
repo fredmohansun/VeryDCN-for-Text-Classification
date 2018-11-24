@@ -48,14 +48,15 @@ is_cuda = torch.cuda.is_available()
 dataset = 'amazon_review_full' if args.dataset is None else args.dataset
 vocab_size = 69
 depth = 29 if args.depth is None else args.depth
-batch_size = bs_dict.get(depth) if args.batch_size is None else args.batch_size
+batch_size = batch_size_dict.get(depth) if args.batch_size is None else args.batch_size
 max_epoch = 20 if args.max_epoch is None else args.max_epoch
 optimi = 'SGD' if args.SGD else 'ADAM'
 lr = lr_dict.get(optim,0.001) if args.lr is None else args.lr
 embed_size = 16 if args.embed_size is None else args.embed_size
 downsample = 1 if args.downsample is None else args.downsample
 kmaxpool = 8 if args.kmaxpool is None else args.kmaxpool
-savefile = '_'.join[dataset, str(depth), str(batch_size), str(max_epoch), optimi, ['No downsample', 'MaxPooling', 'ResNet', '{0}-max'.format(kmaxpool)][downsample]]
+savefile = '_'.join([dataset, str(depth), str(batch_size), str(max_epoch), optimi, ['No downsample', 'MaxPooling', 'ResNet', '{0}-max'.format(kmaxpool)][downsample]])
+print(savefile)
 
 ## Datasets
 train_dataset = TextDataset(train_x_path.get(dataset), train_y_path.get(dataset))
@@ -63,6 +64,7 @@ train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size,
 
 test_dataset = TextDataset(test_x_path.get(dataset), test_y_path.get(dataset))
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=10)
+print('Dataset loaded...')
 
 ## Model initialization
 model = VDCNN(vocab_size, embed_size, depth, downsample, args.shortcut, kmaxpool)
@@ -88,6 +90,7 @@ train_loss = []
 train_acc = []
 val_loss = []
 val_acc = []
+print('start training...')
 for epoch in range(max_epoch):
     model.train()
     running_acc = 0.0

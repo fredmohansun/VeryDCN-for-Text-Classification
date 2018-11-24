@@ -9,7 +9,7 @@ class KMaxPool(nn.Module):
     def forward(self, x):
         if(self.k==0):
             self.k = x.size()[2]/2
-        return x.topk(k, sorted=False)[0]
+        return x.topk(self.k, sorted=False)[0]
 
 # Conv block
 class BasicBlock(nn.Module):
@@ -41,23 +41,24 @@ class BasicResBlock(nn.Module):
         elif downsample == 2:
             first_stride = 2
         elif downsample==3:
+            first_stride = 1
             self.pool = KMaxPool()
         else:
             first_stride = 1
         self.downsample = downsample
-
         self.convblock = BasicBlock(in_channels, out_channels, stride=first_stride)
-
         if shortcut and downsample:
-                self.shortcut = nn.Conv1d(in_channels, out_channels, kernel_size=1, stride=2)
+            self.shortcut = nn.Conv1d(in_channels, out_channels, kernel_size=1, stride=2)
+        else:
+            self.shortcut = None
 
     def forward(self, x):
         out = self.convblock(x)
-        if downsample:
+        if self.downsample:
             out = self.pool(out)
-        if shortcut and downsample:
+        if self.shortcut and self.downsample:
             out = out + self.shortcut(x)
-        elif shortcut:
+        elif self.shortcut:
             out = out + x
         else:
             out = out
@@ -84,16 +85,16 @@ class VDCNN(nn.Module):
 
         for i in range(nblock64):
             layers.append(BasicResBlock(64, 64, shortcut=shortcut))
-
         layers.append(BasicResBlock(64, 128, downsample=downsample, shortcut=shortcut))
+
         for i in range(nblock128-1):
             layers.append(BasicResBlock(128, 128, shortcut=shortcut))
-
         layers.append(BasicResBlock(128, 256, downsample=downsample, shortcut=shortcut))
+
         for i in range(nblock256-1):
             layers.append(BasicResBlock(256, 256, shortcut=shortcut))
-
         layers.append(BasicResBlock(256, 512, downsample=downsample, shortcut=shortcut))
+
         for i in range(nblock512-1):
             layers.append(BasicResBlock(512, 512, shortcut=shortcut))
 

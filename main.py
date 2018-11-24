@@ -25,7 +25,7 @@ train_y_path = dict(zip(Datasets, list(map(concatenater,['preprocessed_data/']*l
 test_x_path = dict(zip(Datasets, list(map(concatenater,['preprocessed_data/']*len(Datasets),Datasets,['_test.txt']*len(Datasets)))))
 test_y_path = dict(zip(Datasets, list(map(concatenater,['preprocessed_data/']*len(Datasets),Datasets,['_test_labels.txt']*len(Datasets)))))
 lr_dict = {'SGD': 0.001, 'ADAM':0.01}
-batch_size_dict = {9: 200, 17: 150, 29:120, 49:75}
+batch_size_dict = {9: 200, 17: 150, 29:100, 49:75}
 save_frequency = {9: 5, 17: 5, 29:2, 49:1}
 
 ## Parser
@@ -67,7 +67,7 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, s
 print('Dataset loaded...')
 
 ## Model initialization
-model = VDCNN(vocab_size, embed_size, depth, downsample, args.shortcut, kmaxpool)
+model = VDCNN(vocab_size, embed_size, depth, downsample, args.shortcut, kmaxpool, 4)
 if is_cuda:
     model.cuda()
     model = nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
@@ -81,7 +81,7 @@ if optimi == 'SGD':
 else:
     optimizer = optim.Adam(model.parameters(), lr = lr)
 
-criterion = nn.CrossEntropyLoss
+criterion = nn.CrossEntropyLoss()
 
 #################################chamring block breaker#############################################
 # Train

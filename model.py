@@ -48,7 +48,7 @@ class BasicResBlock(nn.Module):
             first_stride = 1
         self.downsample = downsample
         self.convblock = BasicBlock(in_channels, out_channels, stride=first_stride)
-        if shortcut and downsample:
+        if shortcut:
             self.shortcut = nn.Conv1d(in_channels, out_channels, kernel_size=1, stride=2)
         else:
             self.shortcut = None

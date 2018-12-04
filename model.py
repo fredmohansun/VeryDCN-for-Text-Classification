@@ -108,7 +108,14 @@ class VDCNN(nn.Module):
             nn.ReLU(),
             nn.Linear(2048, num_classes)
         )
+	self.init_weights()
 
+    def init_weights(self):
+	for m in self.modules():
+		if isinstance(m, nn.Conv1d):
+			nn.init.kaiming_normal_(m.weight, mode='fan_in')
+			if m.bias is not None:
+				nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
         out = self.embed(x)

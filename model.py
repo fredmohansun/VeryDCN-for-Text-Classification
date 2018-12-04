@@ -8,7 +8,8 @@ class KMaxPool(nn.Module):
         self.k = k
     def forward(self, x):
         if(self.k==0):
-            self.k = x.size()[2]/2
+            self.k = int(x.size()[2]/2)
+        print (self.k)
         return x.topk(self.k, sorted=False)[0]
 
 # Conv block
@@ -54,7 +55,7 @@ class BasicResBlock(nn.Module):
 
     def forward(self, x):
         out = self.convblock(x)
-        if self.downsample:
+        if self.downsample and (self.downsample!=2):
             out = self.pool(out)
         if self.shortcut and self.downsample:
             out = out + self.shortcut(x)

@@ -22,11 +22,11 @@ def pre_process(data_dir):
 
 
 def main():
-    train_directory = '../project/amazon_review_full_csv/train.csv'
-    test_directory = '../project/amazon_review_full_csv/test.csv'
+    train_directory = 'amazon_review_full_csv/train.csv'
+    test_directory = 'amazon_review_full_csv/test.csv'
 
-    if not os.path.isdir('preprocessed_data'):
-        os.mkdir('preprocessed_data')
+    if not os.path.isdir('preprocessed_lstm_data'):
+        os.mkdir('preprocessed_lstm_data')
 
     x_train, y_train = pre_process(train_directory)
     x_test, y_test = pre_process(test_directory)
@@ -61,8 +61,8 @@ def main():
     x_test_token_ids = [[word_to_id.get(token,-1)+1 for token in x] for x in x_test]
     
 
-    np.save('preprocessed_data/glove_dictionary.npy',glove_dictionary)
-    np.save('preprocessed_data/glove_embeddings.npy',glove_embeddings)
+    np.save('preprocessed_lstm_data/glove_dictionary.npy',glove_dictionary)
+    np.save('preprocessed_lstm_data/glove_embeddings.npy',glove_embeddings)
 
     with io.open('preprocessed_data/imdb_train_glove.txt','w',encoding='utf-8') as f:
         for tokens in x_train_token_ids:
@@ -70,7 +70,7 @@ def main():
                 f.write("%i " % token)
             f.write("\n")
 
-    with io.open('preprocessed_data/imdb_test_glove.txt','w',encoding='utf-8') as f:
+    with io.open('preprocessed_lstm_data/imdb_test_glove.txt','w',encoding='utf-8') as f:
         for tokens in x_test_token_ids:
             for token in tokens:
                 f.write("%i " % token)

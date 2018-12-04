@@ -1,5 +1,14 @@
-
-
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.autograd import Variable
+import torch.distributed as dist
+import time
+import os
+import sys
+import io
 
 
 class StatefulLSTM(nn.Module):
@@ -49,7 +58,7 @@ class LockedDropout(nn.Module):
 
 
 class RNN_model(nn.Module):
-    def __init__(self,vocab_size,no_of_hidden_units):
+    def __init__(self,vocab_size,no_of_hidden_units,num_classes):
         super(RNN_model, self).__init__()
 
         self.embedding = nn.Embedding(vocab_size,no_of_hidden_units)
@@ -69,7 +78,7 @@ class RNN_model(nn.Module):
 
         self.fc_output = nn.Linear(no_of_hidden_units, num_classes)
 
-        self.loss = nn.BCEWithLogitsLoss()
+        self.loss = nn.CrossEntropyLoss()
 
     def reset_state(self):
         self.lstm1.reset_state()
@@ -116,4 +125,4 @@ class RNN_model(nn.Module):
 
         h = self.fc_output(h)
 
-        return self.loss(h[:,0],t), h[:,0]#F.softmax(h, dim=1)
+        return self.loss(h,t), h#F.softmax(h, dim=1)

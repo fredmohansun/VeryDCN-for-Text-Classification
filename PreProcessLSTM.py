@@ -22,8 +22,8 @@ def pre_process(data_dir):
 
 
 def main():
-    train_directory = '../project/amazon_review_full_csv/train.csv'
-    test_directory = '../project/amazon_review_full_csv/test.csv'
+    train_directory = 'ag_news_csv/train.csv'
+    test_directory = 'ag_news_csv/test.csv'
 
     if not os.path.isdir('preprocessed_data'):
         os.mkdir('preprocessed_data')
@@ -52,17 +52,17 @@ def main():
     x_test_token_ids = [[word_to_id.get(token, -1) + 1 for token in x] for x in x_test]
 
     # save dictionary
-    np.save('preprocessed_data/amazon_dictionary.npy', np.asarray(id_to_word))
+    np.save('preprocessed_lstm_data/ag_news_dictionary.npy', np.asarray(id_to_word))
 
     # save training data to single text file
-    with io.open('preprocessed_data/amazon_train.txt', 'w', encoding='utf-8') as f:
+    with io.open('preprocessed_lstm_data/ag_news_train.txt', 'w', encoding='utf-8') as f:
         for tokens in x_train_token_ids:
             for token in tokens:
                 f.write("%i " % token)
             f.write("\n")
 
     # save test data to single text file
-    with io.open('preprocessed_data/amazon_test.txt', 'w', encoding='utf-8') as f:
+    with io.open('preprocessed_lstm_data/ag_news_test.txt', 'w', encoding='utf-8') as f:
         for tokens in x_test_token_ids:
             for token in tokens:
                 f.write("%i " % token)

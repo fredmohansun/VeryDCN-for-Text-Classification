@@ -3,7 +3,7 @@ from torch.utils import data
 
 
 class TextDataset(torch.utils.data.Dataset):
-    def __init__(self, data_dir, labels_dir, num_tokens=1014):
+    def __init__(self, data_dir, labels_dir, num_tokens=1024):
         self.idx_to_image = {}
         self.idx_to_class = {}
         self.class_to_idx = {}

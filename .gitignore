@@ -1,0 +1,6 @@
+*.swp
+*.model
+*.npy
+*.out
+*.err
+*.txt

@@ -1,14 +1,13 @@
 import torch
 import torch.nn as nn
 
-
 class KMaxPool(nn.Module):
     def __init__(self, k=0):
         super(KMaxPool, self).__init__()
         self.k = k
     def forward(self, x):
         if(self.k==0):
-            self.k = x.size()[2]/2
+            self.k = int(x.size()[2]/2)
         return x.topk(self.k, sorted=False)[0]
 
 # Conv block
@@ -47,14 +46,14 @@ class BasicResBlock(nn.Module):
             first_stride = 1
         self.downsample = downsample
         self.convblock = BasicBlock(in_channels, out_channels, stride=first_stride)
-        if shortcut and downsample:
+        if shortcut:
             self.shortcut = nn.Conv1d(in_channels, out_channels, kernel_size=1, stride=2)
         else:
             self.shortcut = None
 
     def forward(self, x):
         out = self.convblock(x)
-        if self.downsample:
+        if self.downsample and (self.downsample!=2):
             out = self.pool(out)
         if self.shortcut and self.downsample:
             out = out + self.shortcut(x)
@@ -107,7 +106,14 @@ class VDCNN(nn.Module):
             nn.ReLU(),
             nn.Linear(2048, num_classes)
         )
+        self.init_weights()
 
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv1d):
+                nn.init.xavier_normal(m.weight)
+                if m.bias is not None:
+                    nn.init.constant(m.bias, 0)
 
     def forward(self, x):
         out = self.embed(x)

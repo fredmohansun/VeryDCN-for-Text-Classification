@@ -74,6 +74,7 @@ print('Dataset loaded...')
 
 ## Model initialization
 model = VDCNN(vocab_size, embed_size, depth, downsample, args.shortcut, kmaxpool, num_classes)
+
 if is_cuda:
     model.cuda()
     model = nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))

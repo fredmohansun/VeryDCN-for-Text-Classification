@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-
 class KMaxPool(nn.Module):
     def __init__(self, k=0):
         super(KMaxPool, self).__init__()
@@ -9,7 +8,6 @@ class KMaxPool(nn.Module):
     def forward(self, x):
         if(self.k==0):
             self.k = int(x.size()[2]/2)
-        print (self.k)
         return x.topk(self.k, sorted=False)[0]
 
 # Conv block
@@ -108,14 +106,14 @@ class VDCNN(nn.Module):
             nn.ReLU(),
             nn.Linear(2048, num_classes)
         )
-	self.init_weights()
+        self.init_weights()
 
     def init_weights(self):
-	for m in self.modules():
-		if isinstance(m, nn.Conv1d):
-			nn.init.kaiming_normal_(m.weight, mode='fan_in')
-			if m.bias is not None:
-				nn.init.constant_(m.bias, 0)
+        for m in self.modules():
+            if isinstance(m, nn.Conv1d):
+                nn.init.xavier_normal(m.weight)
+                if m.bias is not None:
+                    nn.init.constant(m.bias, 0)
 
     def forward(self, x):
         out = self.embed(x)

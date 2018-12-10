@@ -37,13 +37,27 @@ def pre_process_dbpedia(data_dir):
     return x, y
 
 
+def pre_process_yelp(data_dir):
+    x = []
+    y = []
+    with open(data_dir, 'r', encoding='utf-8') as f:
+        for line in f:
+            args = line.split('\",\"')
+            label = int(args[0].lstrip('\"')) - 1
+            review = args[1].rstrip('\n').rstrip('\"').lower()
+            x.append(review)
+            y.append(label)
+            print(review)
+            print(label)
+    return x, y
+
+
 def main():
 
-    dataset = 'dbpedia'
+    dataset = 'yelp'
     base_directory = '../project/'
-
-    train_directories = {'dbpedia': base_directory + 'dbpedia_csv/train.csv'}
-    test_directories = {'dbpedia': base_directory + 'dbpedia_csv/test.csv'}
+    train_directories = {'dbpedia': base_directory + 'dbpedia_csv/train.csv', 'yelp': base_directory + 'yelp_review_full_csv/train.csv'}
+    test_directories = {'dbpedia': base_directory + 'dbpedia_csv/test.csv', 'yelp': base_directory + 'yelp_review_full_csv/test.csv'}
 
     if not os.path.isdir(base_directory + 'preprocessed_data_lstm'):
         os.mkdir(base_directory + 'preprocessed_data_lstm')
@@ -56,6 +70,9 @@ def main():
     elif dataset == 'amazon':
         x_train, y_train = pre_process_amazon(train_directories[dataset])
         x_test, y_test = pre_process_amazon(test_directories[dataset])
+    elif dataset == 'yelp':
+        x_train, y_train = pre_process_yelp(train_directories[dataset])
+        x_test, y_test = pre_process_yelp(test_directories[dataset])
     else:
         print("dataset " + str(dataset) + " is not supported")
         exit(-1)

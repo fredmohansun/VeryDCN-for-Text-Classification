@@ -1,5 +1,9 @@
 # VeryDCN-for-Text-Classification
 
+Note: Migrate from https://gitlab.engr.illinois.edu/sahitil2/verydcn-for-text-classification
+
+Co-work with Raul Kumra, Saar Kuzi, Sahiti Labhishetty, Kanika Narang
+
 Implementation of Very Deep Convolutional Networks for Text Classification
 
 PreProcessor.py - to be used only once for converting text data to a sequence of chars, where each char is represented by an integer (0-68).
